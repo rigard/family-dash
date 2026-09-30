@@ -1,0 +1,1 @@
+Application logic for authentication, local settings, schedule-aware content rotation, weather fetch, word-of-the-day fetch, and data editing.
