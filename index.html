@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f5f0">
+    <meta name="description" content="A shared family dashboard for the start of the day and everything in between.">
+    <title>Our Home | Family Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <main class="dashboard">
+      <header class="topbar">
+        <a class="brand" href="#home" aria-label="Our Home dashboard">
+          <span class="brand-mark" aria-hidden="true">h.</span>
+          <span>our home</span>
+        </a>
+
+        <div class="date-block">
+          <p id="current-day" class="current-day"></p>
+          <p id="current-date" class="current-date"></p>
+        </div>
+
+        <div class="header-tools">
+          <time id="clock" class="clock" aria-label="Current time"></time>
+          <button id="weather-button" class="weather-button" type="button" aria-label="Set your location for local weather">
+            <span id="weather-icon" class="weather-icon" aria-hidden="true">☀</span>
+            <span class="weather-copy">
+              <span id="weather-temp" class="weather-temp">--°</span>
+              <span id="weather-place" class="weather-place">Add weather</span>
+            </span>
+          </button>
+          <button id="chores-open" class="chores-open" type="button" aria-expanded="false" aria-controls="chores-panel">
+            <span class="chores-glyph" aria-hidden="true">✓</span>
+            <span>Chores</span>
+          </button>
+        </div>
+      </header>
+
+      <section id="morning-view" class="morning-view" aria-labelledby="morning-heading">
+        <div class="morning-intro">
+          <div>
+            <p class="eyebrow"><span class="sunrise-dot" aria-hidden="true"></span> A fresh start</p>
+            <h1 id="morning-heading">Good morning, <span>team.</span></h1>
+          </div>
+          <p class="intro-note">Little things, done together.</p>
+        </div>
+
+        <div class="morning-grid">
+          <section class="todos-panel" aria-labelledby="todos-heading">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Before we head out</p>
+                <h2 id="todos-heading">Our morning</h2>
+              </div>
+              <span id="todo-progress" class="progress-count" aria-live="polite">0 of 0 ready</span>
+            </div>
+            <div id="todo-groups" class="todo-groups"></div>
+          </section>
+
+          <aside class="word-panel" aria-labelledby="morning-word-heading">
+            <div class="word-topline">
+              <span class="word-sun" aria-hidden="true">✳</span>
+              <span class="eyebrow">A thought to take along</span>
+            </div>
+            <p class="word-label">Today's word</p>
+            <h2 id="morning-word-heading" class="morning-word"></h2>
+            <p id="morning-definition" class="morning-definition"></p>
+            <span class="word-rule" aria-hidden="true"></span>
+            <p class="word-prompt">Try using it together today.</p>
+          </aside>
+        </div>
+      </section>
+
+      <section id="day-view" class="day-view" aria-labelledby="day-heading" hidden>
+        <div class="day-heading-row">
+          <div>
+            <p id="slide-kicker" class="eyebrow"></p>
+            <h1 id="day-heading">A little something for today</h1>
+          </div>
+          <div class="slide-controls" aria-label="Daytime highlights">
+            <button id="slide-previous" class="slide-arrow" type="button" aria-label="Previous highlight">←</button>
+            <span id="slide-count" class="slide-count" aria-live="polite"></span>
+            <button id="slide-next" class="slide-arrow" type="button" aria-label="Next highlight">→</button>
+          </div>
+        </div>
+
+        <article id="day-feature" class="day-feature" aria-live="polite"></article>
+      </section>
+
+      <footer class="footer">
+        <span class="footer-heart" aria-hidden="true">♥</span>
+        <span>Home is better together.</span>
+        <span id="view-label" class="view-label"></span>
+      </footer>
+    </main>
+
+    <div id="chores-backdrop" class="chores-backdrop" hidden></div>
+    <aside id="chores-panel" class="chores-panel" aria-labelledby="chores-heading" aria-hidden="true" inert>
+      <div class="chores-header">
+        <div>
+          <p class="eyebrow">Many hands, lighter work</p>
+          <h2 id="chores-heading">Our chores</h2>
+        </div>
+        <button id="chores-close" class="close-button" type="button" aria-label="Close chores">×</button>
+      </div>
+      <p id="chores-date" class="chores-date"></p>
+      <div id="chore-list" class="chore-list"></div>
+      <p class="chores-note">A little help goes a long way.</p>
+    </aside>
+
+    <div id="announcement" class="visually-hidden" role="status" aria-live="polite"></div>
+  </body>
+</html>
