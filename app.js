@@ -3,31 +3,13 @@ const MORNING_END = 8 * 60;
 const DAY_SLIDE_DURATION = 20000;
 
 const morningTasks = [
-  {
-    person: 'Big kid',
-    initial: 'B',
-    color: '#dce9ed',
-    tasks: ['Get dressed', 'Brush teeth', 'Pack school bag'],
-  },
-  {
-    person: 'Little kid',
-    initial: 'L',
-    color: '#f4dfd0',
-    tasks: ['Get dressed', 'Brush teeth', 'Find your shoes'],
-  },
-  {
-    person: 'Grown-ups',
-    initial: 'G',
-    color: '#e7e8d6',
-    tasks: ['Make breakfast', 'Pack lunches'],
-  },
-  {
-    person: 'Everyone',
-    initial: '✳',
-    color: '#f5e8c8',
-    tasks: ['Fill water bottles', 'Grab a jacket'],
-  },
+  '1. Get Dressed',
+  '2. Eat Breakfast',
+  '3. Brush Teeth',
+  '4. Pack Bag',
 ];
+
+const familyValues = ['Honesty', 'Fun', 'Kindness', 'Responsibility', 'Respect'];
 
 const chores = [
   { task: 'Set the table', owner: 'Everyone' },
@@ -52,9 +34,9 @@ const highlights = [
   {
     type: 'values',
     kicker: 'The things that make us us',
-    title: 'Kindness lives in the little things.',
-    body: 'We notice when someone needs a hand. We make room at the table, share what we have, and help each other feel at home.',
-    note: 'Our family value: kindness',
+    title: 'Our family values',
+    body: 'Five things we carry with us, wherever the day takes us.',
+    note: 'Our family, our way',
   },
   {
     type: 'word',
@@ -157,6 +139,12 @@ function main() {
     viewLabel: document.querySelector('#view-label'),
     slidePrevious: document.querySelector('#slide-previous'),
     slideNext: document.querySelector('#slide-next'),
+    morningListOpen: document.querySelector('#morning-list-open'),
+    morningListClose: document.querySelector('#morning-list-close'),
+    morningListPanel: document.querySelector('#morning-list-panel'),
+    morningListBackdrop: document.querySelector('#morning-list-backdrop'),
+    morningListTodos: document.querySelector('#morning-list-todos'),
+    morningListProgress: document.querySelector('#morning-list-progress'),
     choresOpen: document.querySelector('#chores-open'),
     choresClose: document.querySelector('#chores-close'),
     choresPanel: document.querySelector('#chores-panel'),
@@ -220,28 +208,27 @@ function main() {
   function renderTodos() {
     const key = `family-dash:todos:${dayKey(new Date())}`;
     const checked = storage.get(key, {});
-    let total = 0;
     let completed = 0;
-
-    elements.todoGroups.innerHTML = morningTasks.map((group, groupIndex) => {
-      const items = group.tasks.map((task, taskIndex) => {
-        const id = `todo-${groupIndex}-${taskIndex}`;
-        const isChecked = Boolean(checked[id]);
-        total += 1;
-        if (isChecked) completed += 1;
-        return `<label class="todo-item"><input type="checkbox" data-todo-id="${id}"${isChecked ? ' checked' : ''}><span>${escapeHtml(task)}</span></label>`;
-      }).join('');
-
-      return `<section class="todo-group" aria-label="${escapeHtml(group.person)}"><div class="person-heading"><span class="person-avatar" style="--avatar-color:${escapeHtml(group.color)}" aria-hidden="true">${escapeHtml(group.initial)}</span><span>${escapeHtml(group.person)}</span></div>${items}</section>`;
+    const markup = morningTasks.map((task, index) => {
+      const id = `todo-${index}`;
+      const isChecked = Boolean(checked[id]);
+      if (isChecked) completed += 1;
+      return `<label class="todo-item"><input type="checkbox" data-todo-id="${id}"${isChecked ? ' checked' : ''}><span>${escapeHtml(task)}</span></label>`;
     }).join('');
 
-    elements.todoProgress.textContent = `${completed} of ${total} ready`;
-    elements.todoGroups.querySelectorAll('[data-todo-id]').forEach((input) => {
-      input.addEventListener('change', () => {
-        const next = storage.get(key, {});
-        next[input.dataset.todoId] = input.checked;
-        storage.set(key, next);
-        renderTodos();
+    [
+      { list: elements.todoGroups, progress: elements.todoProgress },
+      { list: elements.morningListTodos, progress: elements.morningListProgress },
+    ].forEach(({ list, progress }) => {
+      list.innerHTML = markup;
+      progress.textContent = `${completed} of ${morningTasks.length} ready`;
+      list.querySelectorAll('[data-todo-id]').forEach((input) => {
+        input.addEventListener('change', () => {
+          const next = storage.get(key, {});
+          next[input.dataset.todoId] = input.checked;
+          storage.set(key, next);
+          renderTodos();
+        });
       });
     });
   }
@@ -251,10 +238,13 @@ function main() {
     const wordSlide = slide.type === 'word';
     const title = wordSlide ? today.word : slide.title;
     const body = wordSlide ? today.definition : slide.body;
+    const values = slide.type === 'values'
+      ? `<ol class="family-values-list">${familyValues.map((value, index) => `<li><span class="value-number" aria-hidden="true">${index + 1}</span><strong>${escapeHtml(value)}</strong></li>`).join('')}</ol>`
+      : '';
     const image = slide.image
       ? `<div class="feature-image-wrap"><img class="feature-image" src="${escapeHtml(slide.image)}" alt="${escapeHtml(slide.imageAlt)}"><span class="feature-image-caption">${escapeHtml(slide.caption)}</span></div>`
       : '';
-    const copy = `<div class="feature-copy"><p class="eyebrow">${escapeHtml(slide.kicker)}</p><h2 class="feature-title">${escapeHtml(title)}</h2><p class="feature-body">${escapeHtml(body)}</p><p class="feature-note">${escapeHtml(slide.note)}</p></div>`;
+    const copy = `<div class="feature-copy"><p class="eyebrow">${escapeHtml(slide.kicker)}</p><h2 class="feature-title">${escapeHtml(title)}</h2><p class="feature-body">${escapeHtml(body)}</p>${values}<p class="feature-note">${escapeHtml(slide.note)}</p></div>`;
 
     elements.dayFeature.className = `day-feature theme-${slide.type}`;
     elements.dayFeature.innerHTML = slide.type === 'quote' ? copy : `${image}${copy}`;
@@ -300,6 +290,16 @@ function main() {
     else elements.choresOpen.focus();
   }
 
+  function setMorningListOpen(isOpen) {
+    elements.morningListPanel.classList.toggle('is-open', isOpen);
+    elements.morningListPanel.setAttribute('aria-hidden', String(!isOpen));
+    elements.morningListPanel.inert = !isOpen;
+    elements.morningListBackdrop.hidden = !isOpen;
+    elements.morningListOpen.setAttribute('aria-expanded', String(isOpen));
+    if (isOpen) elements.morningListClose.focus();
+    else elements.morningListOpen.focus();
+  }
+
   const weatherCodes = new Map([
     [0, ['☀', 'Clear sky']], [1, ['🌤', 'Mostly clear']],
     [2, ['⛅', 'Partly cloudy']], [3, ['☁', 'Cloudy']],
@@ -313,7 +313,7 @@ function main() {
 
   function setWeatherPlaceholder(message = 'Set your location') {
     elements.weatherIcon.textContent = '☀';
-    elements.weatherTemp.textContent = '--°';
+    elements.weatherTemp.textContent = '--°C';
     elements.weatherPlace.textContent = message;
     elements.weatherButton.setAttribute('aria-label', `${message} for local weather`);
   }
@@ -324,7 +324,7 @@ function main() {
       const query = new URLSearchParams({
         latitude: String(latitude), longitude: String(longitude),
         current: 'temperature_2m,weather_code',
-        temperature_unit: 'fahrenheit', timezone: 'auto',
+        temperature_unit: 'celsius', timezone: 'auto',
       });
       const response = await fetch(`https://api.open-meteo.com/v1/forecast?${query}`);
       if (!response.ok) throw new Error('Weather request failed');
@@ -332,9 +332,9 @@ function main() {
       const [icon, description] = weatherCodes.get(data.current.weather_code) || ['☁', 'Current weather'];
       const place = 'Your area';
       elements.weatherIcon.textContent = icon;
-      elements.weatherTemp.textContent = `${Math.round(data.current.temperature_2m)}°`;
+      elements.weatherTemp.textContent = `${Math.round(data.current.temperature_2m)}°C`;
       elements.weatherPlace.textContent = place;
-      elements.weatherButton.setAttribute('aria-label', `${description}, ${Math.round(data.current.temperature_2m)} degrees in ${place}. Tap to refresh.`);
+      elements.weatherButton.setAttribute('aria-label', `${description}, ${Math.round(data.current.temperature_2m)} degrees Celsius in ${place}. Tap to refresh.`);
     } catch {
       setWeatherPlaceholder('Weather unavailable');
     }
@@ -359,12 +359,18 @@ function main() {
   elements.weatherButton.addEventListener('click', requestWeather);
   elements.slidePrevious.addEventListener('click', () => stepSlide(-1));
   elements.slideNext.addEventListener('click', () => stepSlide(1));
+  elements.morningListOpen.addEventListener('click', () => setMorningListOpen(true));
+  elements.morningListClose.addEventListener('click', () => setMorningListOpen(false));
+  elements.morningListBackdrop.addEventListener('click', () => setMorningListOpen(false));
   elements.choresOpen.addEventListener('click', () => setChoresOpen(true));
   elements.choresClose.addEventListener('click', () => setChoresOpen(false));
   elements.choresBackdrop.addEventListener('click', () => setChoresOpen(false));
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && elements.choresPanel.classList.contains('is-open')) {
       setChoresOpen(false);
+    }
+    if (event.key === 'Escape' && elements.morningListPanel.classList.contains('is-open')) {
+      setMorningListOpen(false);
     }
     if (event.key === 'ArrowRight' && activeView === 'day') stepSlide(1);
     if (event.key === 'ArrowLeft' && activeView === 'day') stepSlide(-1);
